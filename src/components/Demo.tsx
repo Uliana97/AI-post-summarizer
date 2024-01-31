@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { copy, linkIcon, loader, tick } from "../assets";
+import { useLazyGetSummaryQuery } from "../services/article";
 
 const Demo = () => {
   const [article, setArticle] = useState({
@@ -8,13 +9,26 @@ const Demo = () => {
     summary: "",
   });
 
+  const [getSummary, {error, isFetching} ] = useLazyGetSummaryQuery();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const {data} = await getSummary({url: article.url});
+
+    if (!data) return;
+
+    if (data.summary) {
+      setArticle({ ...article, summary: data.summary });
+    }
+  };
+
   return (
     <section className="mt-16 w-full max-w-xl">
       {/* Search */}
       <div className="flex flex-col w-full gap-2">
         <form
           className="relative flex justify-center items-center"
-          // onSubmit={handleSubmit}
+          onSubmit={handleSubmit}
         >
           <img
             src={linkIcon}
